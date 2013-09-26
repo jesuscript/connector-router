@@ -3,20 +3,22 @@
 (function () {
     var paper,
         ARROW_OUTER_LENGTH = 15,
-        ARROW_INNER_LENGTH = 10,
+        ARROW_INNER_LENGTH = 9,
         ARROW_ANGLE_RAD = 20 * Math.PI / 180; // 20 degrees
 
     
     var createConnector = function(source, target){
         var path = paper.path([]);
+        var arrowPath = paper.path([]); 
 
         path.attr({ "arrow-end": "none", "stroke-width": 1 });
+        arrowPath.attr({ 'fill': "#000", 'stroke': "#000" });
 
         return {
             source: source,
             target: target,
             path: path,
-            arrowPath: paper.path([]),
+            arrowPath: arrowPath,
             docks: {}
         };
     };
