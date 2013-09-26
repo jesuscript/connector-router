@@ -4,47 +4,6 @@
     var totalConns;
     var SCORE_INCREASER_FACTOR = 0.5;
     
-    function newRoutingStep(step){
-        var next = step.freePairs.shift();
-
-        if(!next) return null;
-
-        step.potentialScore = getPotentialScore(step.freePairs, step.pickedPairs.length);
-
-        var newFreePairs = _.compact(_.reject(step.freePairs, function(pair){
-            return (pair.connector == next.connector) ||
-                ((pair.dir == "in") && (next.source == pair.target)) ||
-                ((pair.dir == "out") && (next.target == pair.source));
-        }));
-
-        var pickedPairs = step.pickedPairs.concat(next);
-        var potentialScore = getPotentialScore(newFreePairs, pickedPairs.length);
-        
-        return {
-            freePairs: newFreePairs, 
-            pickedPairs: pickedPairs,
-            currentScore: step.currentScore + next.score,
-            potentialScore: potentialScore
-        };
-    }
-
-    function getPotentialScore(pairs, pickedPairsNum){
-        var connectorsFound = [];
-        var potentialScore = 0;
-
-        for(var i = -1, l = pairs.length; ++i < l;){
-            if(! _.contains(connectorsFound, pairs[i].connector)){
-                connectorsFound.push(pairs[i].connector);
-                
-                potentialScore += pairs[i].score;
-
-                if(connectorsFound.length === (totalConns - pickedPairsNum)) return potentialScore;
-            }
-        }
-        
-        return null;
-    }
-    
     Router = {
         routeConnectors: function(node){
             var steps = [], routedConnectors = [];;
@@ -166,6 +125,47 @@
     };
 
 
+    function newRoutingStep(step){
+        var next = step.freePairs.shift();
+
+        if(!next) return null;
+
+        step.potentialScore = getPotentialScore(step.freePairs, step.pickedPairs.length);
+
+        var newFreePairs = _.compact(_.reject(step.freePairs, function(pair){
+            return (pair.connector == next.connector) ||
+                ((pair.dir == "in") && (next.source == pair.target)) ||
+                ((pair.dir == "out") && (next.target == pair.source));
+        }));
+
+        var pickedPairs = step.pickedPairs.concat(next);
+        var potentialScore = getPotentialScore(newFreePairs, pickedPairs.length);
+        
+        return {
+            freePairs: newFreePairs, 
+            pickedPairs: pickedPairs,
+            currentScore: step.currentScore + next.score,
+            potentialScore: potentialScore
+        };
+    }
+
+    function getPotentialScore(pairs, pickedPairsNum){
+        var connectorsFound = [];
+        var potentialScore = 0;
+
+        for(var i = -1, l = pairs.length; ++i < l;){
+            if(! _.contains(connectorsFound, pairs[i].connector)){
+                connectorsFound.push(pairs[i].connector);
+                
+                potentialScore += pairs[i].score;
+
+                if(connectorsFound.length === (totalConns - pickedPairsNum)) return potentialScore;
+            }
+        }
+        
+        return null;
+    }
+
     _.each(["source","target"], function(node){
         _.each(["out","in"], function(type){
             var utilName = type+"ConnectorsOn"+node[0].toUpperCase() + node.slice(1);
@@ -182,6 +182,9 @@
         });
     });
 
+    
+
+    
     function neg(v){ return [-v[0], -v[1]]; }
 
     function dot(v1,v2){ return v1[0]*v2[0] + v1[1]*v2[1]; } 
