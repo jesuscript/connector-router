@@ -13,7 +13,7 @@ A JS implementation of a greedy algorithm for routing edges in a directed graph 
 * For each node all inbound and outbound edges are assigned docks in such way that the amount of bending in each edge is minimised
 * The amount of bending is calculated as
 
-[https://github.com/kkudryavtsev/connector-router/blob/master/bend.gif]
+!(https://github.com/kkudryavtsev/connector-router/blob/master/bend.gif)
 
 Where B[x][y] is the amount of bending of a curve connecting dock x with dock y while cos(a) and cos(b) are the cosines of the angles between the corresponding normalised dock vectors and a normalised directional vector D that lies on a the line connecting x and y.
 
