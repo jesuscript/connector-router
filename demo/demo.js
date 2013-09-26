@@ -3,7 +3,8 @@
 (function () {
     var paper,
         ARROW_OUTER_LENGTH = 15,
-        ARROW_INNER_LENGTH = 10;
+        ARROW_INNER_LENGTH = 10,
+        ARROW_ANGLE_RAD = 20 * Math.PI / 180; // 20 degrees
 
     
     var createConnector = function(source, target){
@@ -14,8 +15,34 @@
         return {
             source: source,
             target: target,
-            path: path
+            path: path,
+            arrowPath: paper.path([]),
+            docks: {}
         };
+    };
+
+    var drawArrow = function(connector, ex, ey){
+        ex -= connector.docks.target.v[0] * ARROW_INNER_LENGTH;
+        ey -= connector.docks.target.v[1] * ARROW_INNER_LENGTH;
+
+        var endV = connector.docks.target.v;
+        //arrow length:
+        var aol = ARROW_OUTER_LENGTH, ail = ARROW_INNER_LENGTH;
+        var cosA = Math.cos(ARROW_ANGLE_RAD), sinA = Math.sin(ARROW_ANGLE_RAD);
+
+        //arrow vector:
+        var av = endV;
+
+        // arrow lines:  x' = x*cosA - y*sinA, y' = x*sinA + y*cosA
+        var a1x = aol*(av[0] * cosA - av[1] * sinA) + ex, a1y = aol*(av[0] * sinA + av[1]*cosA) + ey;
+        var a2x = aol*(av[0] * cosA + av[1] * sinA) + ex, a2y = aol*(-av[0] * sinA + av[1]*cosA) + ey;
+
+        // arrow inner point:
+        var aix = ex + endV[0] * ail, aiy = ey + endV[1] * ail;
+        
+        connector.arrowPath.attr({
+            path: "M"+ex+","+ey+"L"+a1x+","+a1y+"L"+aix+","+aiy+"L"+a2x+","+a2y+"L"+","+ex+","+ey
+        });
     };
 
     var redrawConnector = function(connector){
@@ -28,17 +55,15 @@
         var svx = connector.docks.source.v[0], svy = connector.docks.source.v[1];
         var evx = connector.docks.target.v[0], evy = connector.docks.target.v[1];
 
-        console.log(trg.x);
         var halfDist = Math.sqrt(Math.pow(sx-ex,2) + Math.pow(sy-ey,2)) / 2;
         
         var cp1x = sx + svx * halfDist, cp1y = sy + svy * halfDist; //control point 1
         var cp2x = ex + evx * halfDist, cp2y = ey + evy * halfDist; // control point 2
 
-        var path = "M" + sx + "," + sy + "C" + cp1x + "," + cp1y + "," + cp2x + "," + cp2y + "," + ex + "," + ey;
+        connector.path.attr({ path: "M" + sx + "," + sy + "C" + cp1x + "," + cp1y + "," + cp2x + "," + cp2y +
+                              "," + ex + "," + ey });
 
-
-        console.log(path);
-        connector.path.attr({ path: path });
+        drawArrow(connector, ex, ey);
     };
 
     var createNode = function(opt, paper){
@@ -54,12 +79,13 @@
                         node.docks[i] = _.extend(node.docks[i] || {}, dock);
                     });
                     _.each(Router.routeConnectors(node), function(conn){ redrawConnector(conn); }, this);
-                }.bind(this)
+                }.bind(this),
+                scroll: false
             }).css({
                 top: opt.y,
                 left: opt.x,
                 position: "absolute"
-            }),
+            }).text("Drag me!"),
             getDocks: function(){
                 var w = 100, h=50, x = node.x, y = node.y;
 
@@ -92,22 +118,25 @@
     };
 
     $(function () {
+        var nw = 100, nh = 50, ww = $(window).width(), wh = $(window).height();
+        
         paper = Raphael("paper", $(window).width(), $(window).height());
 
-        var node = [];
-        node[1] = createNode({x:200,y:300});
-        node[2] = createNode({x:850,y:750});
-        node[3] = createNode({x:100,y:100});
-        node[4] = createNode({x:400,y:500});
-        node[5] = createNode({x:100,y:500});
-        node[6] = createNode({x:400,y:100});
-        node[7] = createNode({x:700,y:200});
-        node[8] = createNode({x:450,y:250});
-
+        var nodes = [
+            createNode({x:nw*2,y:nh*2}),
+            createNode({x:ww/2 - nw/2,y:nh*2}),
+            createNode({x:ww - nw*3,y:nh*2}),
+            createNode({x:nw*2,y:wh/2 - nh/2}),
+            createNode({x:ww/2 - nw/2,y:wh/2 - nh/2}),
+            createNode({x:ww - nw*3,y:wh/2 - nh/2}),
+            createNode({x:nw*2,y:wh - nh*3}),
+            createNode({x:ww/2 - nw/2,y:wh-nh*3}),
+            createNode({x:ww - nw*3,y:wh-nh*3})
+        ];
         
-        for(var i=1; i<9; i++){
-            for(var j=i+1; j<9; j++){
-                connect(node[i], node[j]);
+        for(var i=0, l=nodes.length;i<l; i++){
+            for(var j=i+1; j<nodes.length; j++){
+                connect(nodes[i], nodes[j]);
             }
         };
 

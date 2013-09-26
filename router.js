@@ -2,6 +2,7 @@
 
 (function () {
     var totalConns;
+    var SCORE_INCREASER_FACTOR = 0.5;
     
     function newRoutingStep(step){
         var next = step.freePairs.shift();
@@ -132,7 +133,7 @@
                     this._docksAllowedOnTarget(connector, sDock, tDock)) &&
                    !this._targetDockReserved(connector, tDock)){
                     
-                    score = this._scoreForDockPair(sDock, tDock);
+                    score = this._scoreForDockPair(connector, sDock, tDock);
 
                     if(!bestPair || score < bestPair.score){
                         bestPair = { score: score, source: sDock, target: tDock };
@@ -142,10 +143,13 @@
 
             return bestPair;
         },
-        _scoreForDockPair: function(sDock,tDock){
+        _scoreForDockPair: function(connector, sDock,tDock){
             var dir = normalise([tDock.x - sDock.x, tDock.y - sDock.y]);
             var cos1 = dot(sDock.v, dir), cos2 = dot(tDock.v, neg(dir));
             var score = (2 - 2*cos1*cos2) / ((1 + cos1)*(1+cos2));
+
+            score *= Math.pow(SCORE_INCREASER_FACTOR, (sDock == connector.docks.source) +
+                              (tDock == connector.docks.target));
             
             return isNaN(score) ? Infinity : score;
         },
