@@ -25,11 +25,14 @@ A JS implementation of a greedy algorithm for routing edges in a directed graph 
 
 Where B[x][y] is the amount of bending in the curve connecting dock x with dock y while cos(a) and cos(b) are the cosines of the angles between the corresponding normalised dock vectors and a normalised directional vector D that lies on the line connecting x and y.
 
-![formula illustrated](https://raw.github.com/kkudryavtsev/connector-router/master/formula_illustrated.png "formula illustrated")
+![formula illustrated](https://raw.github.com/kkudryavtsev/connector-router/master/formula_illustrated.png
+                       https://raw.github.com/kkudryavtsev/connector-router/master/formula_illustrated.png "formula illustrated")
 
 Higher values of B[x][y] mean more bending in the bezier curve connecting x and y and less readable graph. Therefore the purpose of the algorithm is to assign docks to edges in such way that the sum of B[x][y] for the routed node is minimised.
 
 The algorithm
 -------------
 
-Coming soon
+The algorithm is based on iteratively making assumptions about the best way to route all edges for a node, picking one pair of docks based on these assumptions, connecting these and evaluating the results.
+
+Detailed description coming soon
