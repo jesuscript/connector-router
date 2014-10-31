@@ -4,7 +4,7 @@ Connector Router
 Demo
 ----
 
-http://kkudryavtsev.github.io/connector-router/
+http://jesuscript.github.io/connector-router/
 
 Description
 -----
@@ -34,4 +34,3 @@ The algorithm
 
 The algorithm is based on iteratively making assumptions about the best way to route all edges for a node, picking one pair of docks based on these assumptions, connecting these and evaluating the results.
 
-Detailed description coming soon
